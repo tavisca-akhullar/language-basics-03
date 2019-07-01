@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Linq;
-using System.Collections;
+using System.Collections.Generic;
+
 
 namespace Tavisca.Bootcamp.LanguageBasics.Exercise1
 {
@@ -39,137 +40,107 @@ namespace Tavisca.Bootcamp.LanguageBasics.Exercise1
             Console.WriteLine(result);
         }
 
-        public static int[] SelectMeals(int[] protein, int[] carbs, int[] fat, string[] dietPlans)
+        //Method that return minimum index that suits diet plans
+        public static int SelectMealsUtil(string dietPlan, int[] protein, int[] carbs, int[] fat, int[] calories)
         {
-            int[] output = new int[dietPlans.Length];
 
-            int[] calories = new int[protein.Length];
+            List<int> item = new List<int>();
             for (int i = 0; i < protein.Length; i++)
             {
-                calories[i] = fat[i] * 9 + carbs[i] * 5 + protein[i] * 5;
+                item.Add(i);
             }
 
-            for (int i = 0; i < dietPlans.Length; i++)
+            int minMaxElement;
+
+            //Iterating through each character in dietplans
+            foreach (var diet in dietPlan)
             {
-
-                string diet = dietPlans[i];
-
-                if (diet.Length == 0)
+                switch (diet)
                 {
-
-                    output[i] = 0;
-
-                }
-                else
-                {
-                    ArrayList tempList = new ArrayList();
-                    for (int j = 0; j < diet.Length; j++)
-                    {
-                        char[] temp = diet.ToCharArray();
-                        if (temp[j] == 'P')
-                        {
-                            tempList = SelectMealsUtil(protein, tempList, "max");
-                        }
-                        else if (temp[j] == 'p')
-                        {
-                            tempList = SelectMealsUtil(protein, tempList, "min");
-                        }
-                        else if (temp[j] == 'C')
-                        {
-                            tempList = SelectMealsUtil(carbs, tempList, "max");
-                        }
-                        else if (temp[j] == 'c')
-                        {
-                            tempList = SelectMealsUtil(carbs, tempList, "min");
-                        }
-                        else if (temp[j] == 'F')
-                        {
-                            tempList = SelectMealsUtil(fat, tempList, "max");
-                        }
-                        else if (temp[j] == 'f')
-                        {
-                            tempList = SelectMealsUtil(fat, tempList, "min");
-                        }
-                        else if (temp[j] == 'T')
-                        {
-                            tempList = SelectMealsUtil(calories, tempList, "max");
-                        }
-                        else if (temp[j] == 't')
-                        {
-                            tempList = SelectMealsUtil(calories, tempList, "min");
-                        }
-                    }
-                    output[i] = (int)tempList[0];
+                    case 'P':
+                        minMaxElement = Max(protein, item);
+                        item = index(protein, item, minMaxElement);
+                        break;
+                    case 'p':
+                        minMaxElement = Min(protein, item);
+                        item = index(protein, item, minMaxElement);
+                        break;
+                    case 'C':
+                        minMaxElement = Max(carbs, item);
+                        item = index(carbs, item, minMaxElement);
+                        break;
+                    case 'c':
+                        minMaxElement = Min(carbs, item);
+                        item = index(carbs, item, minMaxElement);
+                        break;
+                    case 'F':
+                        minMaxElement = Max(fat, item);
+                        item = index(fat, item, minMaxElement);
+                        break;
+                    case 'f':
+                        minMaxElement = Min(fat, item);
+                        item = index(fat, item, minMaxElement);
+                        break;
+                    case 'T':
+                        minMaxElement = Max(calories, item);
+                        item = index(calories, item, minMaxElement);
+                        break;
+                    case 't':
+                        minMaxElement = Min(calories, item);
+                        item = index(calories, item, minMaxElement);
+                        break;
                 }
             }
-            return output;
-            throw new NotImplementedException();
+            return item[0];
+        }
+
+        //Method to find list of indexes that contains min or max element
+        public static List<int> index(int[] arr, List<int> item, int y)
+        {
+            List<int> temp = new List<int>();
+            foreach (var i in item)
+            {
+                if (arr[i] == y)
+                    temp.Add(i);
+            }
+            return temp;
         }
 
 
-        public static ArrayList SelectMealsUtil(int[] array, ArrayList list, string maxMin)
+        //Method to fnd index of min nutrient in list
+        private static int Min(int[] arr, List<int> item)
         {
-            if (list.Count == 0)
+            int min = arr[item[0]];
+            for (int i = 1; i < item.Count; i++)
             {
-                if (maxMin.Equals("max"))
-                {
-                    int max = int.MinValue;
-                    for (int i = 0; i < array.Length; i++)
-                    {
-                        if (array[i] > max) max = array[i];
-                    }
-                    for (int i = 0; i < array.Length; i++)
-                    {
-                        if (array[i] == max) list.Add(i);
-                    }
-                }
-                else
-                {
-                    int min = int.MaxValue;
-                    for (int i = 0; i < array.Length; i++)
-                    {
-                        if (array[i] < min) min = array[i];
-                    }
-                    for (int i = 0; i < array.Length; i++)
-                    {
-                        if (array[i] == min) list.Add(i);
-                    }
-                }
-
+                if (arr[item[i]] < min)
+                    min = arr[item[i]];
             }
-            else
+            return min;
+        }
+
+        //Method to fnd index of max  nutrient in list
+        private static int Max(int[] arr, List<int> item)
+        {
+            int max = arr[item[0]];
+            for (int i = 1; i < item.Count; i++)
             {
-                if (list.Count == 1) { return list; }
-                ArrayList listTemp = new ArrayList();
-                if (maxMin.Equals("max"))
-                {
-                    int max = int.MinValue;
-                    for (int i = 0; i < list.Count; i++)
-                    {
-                        if (array[(int)list[i]] > max) max = (int)list[i];
-                    }
-                    for (int i = 0; i < list.Count; i++)
-                    {
-                        if ((int)list[i] == max) listTemp.Add(list[i]);
-                    }
-
-                }
-                else
-                {
-                    int min = int.MaxValue;
-                    for (int i = 0; i < list.Count; i++)
-                    {
-                        if (array[(int)list[i]] < min) min = (int)list[i];
-                    }
-                    for (int i = 0; i < list.Count; i++)
-                    {
-                        if ((int)list[i] == min) listTemp.Add(list[i]);
-                    }
-
-                }
-                return listTemp;
+                if (arr[item[i]] > max)
+                    max = arr[item[i]];
             }
-            return list;
+            return max;
+        }
+        public static int[] SelectMeals(int[] protein, int[] carbs, int[] fat, string[] dietPlans)
+        {
+
+            int[] calories = new int[protein.Length];
+            int[] ans = new int[dietPlans.Length];
+            for (int i = 0; i < protein.Length; i++)
+                calories[i] = ((protein[i]) * 5) + ((carbs[i]) * 5) + fat[i] * 9;
+            for (int i = 0; i < dietPlans.Length; i++)
+                ans[i] = SelectMealsUtil(dietPlans[i], protein, carbs, fat, calories);
+            return ans;
+
         }
     }
 }
